@@ -2,6 +2,8 @@ import { StatusBar } from 'expo-status-bar';
 import { Button, StyleSheet, Text, View, Dimensions } from 'react-native';
 import { useState, useEffect } from 'react';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { Platform, NativeModules } from 'react-native';
 const { StatusBarManager } = NativeModules;
 
@@ -13,18 +15,44 @@ const height = Dimensions.get("window").height - STATUSBAR_HEIGHT
 import Home from './screens/Home';
 import Game from "./screens/Game"
 
+const highScoreKey = "@highscore:0.0"
+
+const storeData = async (key, value) => {
+  try {
+    await AsyncStorage.setItem(key, value)
+  } catch (e) {
+    // saving error
+  }
+}
+
+const getData = async (key) => {
+  try {
+    const value = await AsyncStorage.getItem(key)
+    if(value !== null) {
+      // value previously stored
+    }
+  } catch(e) {
+    // error reading value
+  }
+}
+
 export default function App() {
   const [ screen, setScreen ] = useState("home")
+  const [ highscore, setHighscore ] = useState(0)
+  const [ gotData, setGotData ] = useState(false)
 
   useEffect(() => {
-    console.log(StatusBar.currentHeight)
-  })
+    getData(highScoreKey).then((storedHighscore) => {
+      if (storedHighscore)
+        setHighscore(storedHighscore)
+    })
+  }, [])
 
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
-      {screen == "home" ? <Home setScreen={setScreen}/> : null}
-      {screen == "game" ? <Game setScreen={setScreen}/> : null}
+      {screen == "home" ? <Home setScreen={setScreen} highscore={highscore}/> : null}
+      {screen == "game" ? <Game setScreen={setScreen} highscore={highscore} setHighscore={setHighscore}/> : null}
 
     </View>
   );

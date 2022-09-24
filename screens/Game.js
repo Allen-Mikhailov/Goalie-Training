@@ -79,11 +79,13 @@ function getAttackerPosition(index)
 
 const MOVETIME = 250
 
-export default function Game()
+export default function Game({ highscore, setHighscore, setScreen })
 {
     const [score, setScore ] = useState(0)
     const [ position, setPosition ] = useState(1)
     const [ actualPos, setActualPos ] = useState([0, 0])
+
+    const [ misses, setMisses ] = useState(0)
 
     const attackerLeft = useRef(new Animated.Value(0)).current
     const attackerTop = useRef(new Animated.Value(0)).current
@@ -99,8 +101,10 @@ export default function Game()
                 newPos = Math.floor(Math.random()*6)
 
             setPosition(newPos)
+        } else {
+
         }
-    }   
+    }
 
     useEffect(() => {
         const newPos = getAttackerPosition(position)
