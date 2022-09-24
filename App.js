@@ -43,10 +43,15 @@ export default function App() {
 
   useEffect(() => {
     getData(highScoreKey).then((storedHighscore) => {
-      if (storedHighscore)
-        setHighscore(storedHighscore)
+      setHighscore(storedHighscore? parseInt(storedHighscore): 0)
+      setGotData(true)
     })
   }, [])
+
+  useEffect(() => {
+    if (gotData)
+      storeData(highScoreKey, highscore.toString()).then(() => {})
+  })
 
   return (
     <View style={styles.container}>

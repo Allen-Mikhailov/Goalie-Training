@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Dimensions, Pressable, Animated } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Pressable, Animated, Button } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 
 import { Platform, NativeModules } from 'react-native';
@@ -44,7 +44,6 @@ const styles = StyleSheet.create({
     PositionButtonContainer: {
         flex: 1,
         borderRadius: "50%",
-        borderWidth: 2
     },
     PositionButton: {
         // color: "black"
@@ -54,6 +53,38 @@ const styles = StyleSheet.create({
     TopText: {
         fontSize: 30,
         textAlign: "center"
+    },
+    Misses: {
+        flexDirection: "row",
+        width: "100%",
+        height: "10%",
+        position: "absolute",
+        top: "12.5%",
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    Miss: {
+        width: height*.1,
+        height: height*.1,
+    },
+    bar: {
+        width: "10%",
+        height: "100%",
+        left: "46%",
+        backgroundColor: "red",
+        flex: 1,
+        position: "absolute"
+    },
+    EndGameScreen: {
+        top: "10%",
+        width: "80%",
+        left: "10%",
+        height: "80%",
+        backgroundColor: "grey",
+        borderRadius: "25%",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "absolute"
     }
 });
 
@@ -77,6 +108,23 @@ function getAttackerPosition(index)
     return [Math.cos(angle)*playerDistance + width/2, -Math.sin(angle)*playerDistance+startheight ]
 }
 
+function Miss()
+{
+    return <View style={styles.Miss}>
+        <View style={[styles.bar, {transform: [{rotate: "45deg"}]}]}/>
+        <View style={[styles.bar, {transform: [{rotate: "-45deg"}]}]}/>
+    </View>
+}
+
+function Misses({misses})
+{
+    return <View style={styles.Misses}>
+        {misses >= 1? <Miss/>:null}
+        {misses >= 2? <Miss/>:null}
+        {misses >= 3? <Miss/>:null}
+    </View>
+}
+
 const MOVETIME = 250
 
 export default function Game({ highscore, setHighscore, setScreen })
@@ -84,6 +132,8 @@ export default function Game({ highscore, setHighscore, setScreen })
     const [score, setScore ] = useState(0)
     const [ position, setPosition ] = useState(1)
     const [ actualPos, setActualPos ] = useState([0, 0])
+    const [ gameEnd, setGameEnd ] = useState(false)
+    const [newHighScore, setNewHighScore] = useState(false)
 
     const [ misses, setMisses ] = useState(0)
 
@@ -92,19 +142,31 @@ export default function Game({ highscore, setHighscore, setScreen })
 
     function OnCheck(index)
     {
+        if (gameEnd) return;
         if (index == position)
-        {
             setScore(score+1)
+        else
+            setMisses(misses + 1)
 
-            let newPos = Math.floor(Math.random()*6)
-            while (newPos == position)
-                newPos = Math.floor(Math.random()*6)
-
-            setPosition(newPos)
-        } else {
-
-        }
+        let newPos = Math.floor(Math.random()*6)
+        while (newPos == position)
+            newPos = Math.floor(Math.random()*6)
+        setPosition(newPos)
     }
+
+    // Game End
+    useEffect(() => {
+        if (misses == 3)
+        {
+            // Game End
+            if (score > highscore)
+            {
+                setHighscore(score)
+                setNewHighScore(true)
+            }
+            setGameEnd(true)
+        }
+    }, [misses])
 
     useEffect(() => {
         const newPos = getAttackerPosition(position)
@@ -134,6 +196,7 @@ export default function Game({ highscore, setHighscore, setScreen })
     return <View style={styles.container}>
         <Text style={styles.TopText}>Score:</Text>
         <Text style={styles.TopText}>{score.toString()}</Text>
+        <Misses misses={misses}/>
         {/* Buttons */}
         <View style={styles.ButtonContainer}>
             {ButtonRange.map((index) => <Pressable key={index} onPress={() => OnCheck(index)} style={styles.PositionButtonContainer}>
@@ -143,5 +206,11 @@ export default function Game({ highscore, setHighscore, setScreen })
         <View style={styles.Goal}/>
         <Animated.View style={[styles.Player, {left: attackerLeft, top: attackerTop}]}/>
         
+        {/* End Game Screen */}
+        {gameEnd? <View style={styles.EndGameScreen}>
+            {newHighScore? <Text>New Highscore!</Text>:null}
+            <Text>{"Final Score: "+score}</Text>
+            <Button title='Retry' onPress={() => setScreen("home")}/>
+        </View>:null}
     </View>
 }
