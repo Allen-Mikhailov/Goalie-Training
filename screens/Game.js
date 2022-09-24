@@ -10,26 +10,12 @@ const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBarManager.HEIGHT;
 const width = Dimensions.get("window").width
 const height = Dimensions.get("window").height - STATUSBAR_HEIGHT
 
-const PLAYERSIZE = .1
+import Player from '../components/Player';
+import Goal from '../components/Goal';
+
+const PLAYER_SIZE = .125
 
 const styles = StyleSheet.create({
-    Goal: {
-        width: width*.5,
-        position: "absolute",
-        height: height*.1,
-        backgroundColor: "red",
-        top: height*.8,
-        left: "25%"
-    },
-    Player: {
-        position: "absolute",
-        width: width*PLAYERSIZE,
-        height: width*PLAYERSIZE,
-        borderRadius: '50%',
-        borderColor: "black",
-        backgroundColor: "#aaa",
-        borderWidth: 4
-    },
     container: {
         flex: 1,
     },
@@ -90,6 +76,25 @@ const styles = StyleSheet.create({
 const Positions = 6
 const ButtonRange = [0, 1, 2, 3, 4, 5]
 
+// Totally Wrote this
+function shuffle(array) {
+    let currentIndex = array.length,  randomIndex;
+  
+    // While there remain elements to shuffle.
+    while (currentIndex != 0) {
+  
+      // Pick a remaining element.
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+  
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+  
+    return array;
+  }
+
 const playerDistance = width*.5
 const WideAngle = 120
 function getPositionAngle(index)
@@ -124,20 +129,20 @@ function Misses({misses})
     </View>
 }
 
-const MOVETIME = 250
-
 export default function Game({ highscore, setHighscore, setScreen })
 {
     const [score, setScore ] = useState(0)
+
     const [ position, setPosition ] = useState(1)
     const [ actualPos, setActualPos ] = useState([0, 0])
+
     const [ gameEnd, setGameEnd ] = useState(false)
     const [newHighScore, setNewHighScore] = useState(false)
 
     const [ misses, setMisses ] = useState(0)
 
-    const attackerLeft = useRef(new Animated.Value(0)).current
-    const attackerTop = useRef(new Animated.Value(0)).current
+    const [positionArray, setPositionArray] = useState([0, 1, 2, 3, 4, 5])
+    const [ positionIndex, setPositionIndex ] = useState(0)
 
     function OnCheck(index)
     {
@@ -147,11 +152,23 @@ export default function Game({ highscore, setHighscore, setScreen })
         else
             setMisses(misses + 1)
 
-        let newPos = Math.floor(Math.random()*6)
-        while (newPos == position)
-            newPos = Math.floor(Math.random()*6)
-        setPosition(newPos)
+        let newIndex = (positionIndex+1)%6
+        setPositionIndex(newIndex)
+
+        if (newIndex == 0)
+        {
+            let newArray = shuffle(positionArray)
+            setPositionArray(newArray)
+            setPosition(newArray[newIndex])
+        }
+        else
+            setPosition(positionArray[newIndex])
     }
+
+    // Game Start
+    useEffect(() => {
+        setPositionArray(shuffle(positionArray))
+    }, [])
 
     // Game End
     useEffect(() => {
@@ -169,28 +186,8 @@ export default function Game({ highscore, setHighscore, setScreen })
 
     useEffect(() => {
         const newPos = getAttackerPosition(position)
-        setActualPos([newPos[0]-width*PLAYERSIZE/2, newPos[1]-width*PLAYERSIZE/2])
+        setActualPos([newPos[0]-width*PLAYER_SIZE/2, newPos[1]-width*PLAYER_SIZE/2])
     }, [position])
-
-    useEffect(() => {
-        Animated.timing(
-            attackerLeft,
-            {
-              toValue: actualPos[0],
-              duration: MOVETIME,
-              useNativeDriver: false
-            }
-          ).start();
-
-          Animated.timing(
-            attackerTop,
-            {
-              toValue: actualPos[1],
-              duration: MOVETIME,
-              useNativeDriver: false
-            }
-          ).start();
-    })
 
     return <View style={styles.container}>
         <Text style={styles.TopText}>{score.toString()}</Text>
@@ -201,8 +198,13 @@ export default function Game({ highscore, setHighscore, setScreen })
                 <Text style={styles.PositionButton}>{(index+1).toString()}</Text>
             </Pressable>)}
         </View>
-        <View style={styles.Goal}/>
-        <Animated.View style={[styles.Player, {left: attackerLeft, top: attackerTop}]}/>
+        <Goal/>
+
+        {/* Attacker */}
+        <Player left={actualPos[0]} top={actualPos[1]} style={{backgroundColor: "red"}}/>
+
+        {/* Goalie */}
+        <Player left={width*(.5-PLAYER_SIZE/2)} top={height*.74} style={{backgroundColor: "lightblue"}}/>
         
         {/* End Game Screen */}
         {gameEnd? <View style={styles.EndGameScreen}>
