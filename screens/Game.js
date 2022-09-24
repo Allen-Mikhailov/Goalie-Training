@@ -76,12 +76,11 @@ const styles = StyleSheet.create({
         position: "absolute"
     },
     EndGameScreen: {
-        top: "10%",
-        width: "80%",
-        left: "10%",
-        height: "80%",
+        width: "100%",
+        height: "100%",
+        top: -STATUSBAR_HEIGHT,
         backgroundColor: "grey",
-        borderRadius: "25%",
+        opacity: .5,
         alignItems: "center",
         justifyContent: "center",
         position: "absolute"
@@ -194,7 +193,6 @@ export default function Game({ highscore, setHighscore, setScreen })
     })
 
     return <View style={styles.container}>
-        <Text style={styles.TopText}>Score:</Text>
         <Text style={styles.TopText}>{score.toString()}</Text>
         <Misses misses={misses}/>
         {/* Buttons */}

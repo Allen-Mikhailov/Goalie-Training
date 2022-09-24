@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Button, StyleSheet, Text, View, Dimensions } from 'react-native';
+import { Button, StyleSheet, Text, View, Dimensions, Image } from 'react-native';
 import { useState, useEffect } from 'react';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,10 +10,12 @@ const { StatusBarManager } = NativeModules;
 const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBarManager.HEIGHT;
 
 const width = Dimensions.get("window").width
-const height = Dimensions.get("window").height - STATUSBAR_HEIGHT
+const height = Dimensions.get("window").height
 
 import Home from './screens/Home';
 import Game from "./screens/Game"
+
+import HighscoreDisplay from './components/HighscoreDisplay';
 
 const highScoreKey = "@highscore:0.0"
 
@@ -56,6 +58,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
+      <HighscoreDisplay highscore={highscore}/>
       {screen == "home" ? <Home setScreen={setScreen} highscore={highscore}/> : null}
       {screen == "game" ? <Game setScreen={setScreen} highscore={highscore} setHighscore={setHighscore}/> : null}
 
@@ -68,7 +71,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     top: STATUSBAR_HEIGHT,
-    height: height
+    height: height-STATUSBAR_HEIGHT
     // alignItems: 'center',
     // justifyContent: 'center',
   },
