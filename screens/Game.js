@@ -96,10 +96,11 @@ function shuffle(array) {
   }
 
 const playerDistance = width*.5
+const defenderDisance = width*.375
 const WideAngle = 120
 function getPositionAngle(index)
 {
-    return (90 + WideAngle/2 - WideAngle/(Positions-2) * index)/180*Math.PI
+    return (90 + WideAngle/2 - WideAngle/(Positions-2) * (4-index))/180*Math.PI
 }
 
 function getAttackerPosition(index)
@@ -110,6 +111,16 @@ function getAttackerPosition(index)
 
     const angle = getPositionAngle(index)
     return [Math.cos(angle)*playerDistance + width/2, -Math.sin(angle)*playerDistance+startheight ]
+}
+
+function getDefenderPosition(index)
+{
+    const startheight = height*.8
+    if (index == 5)
+        return [width*.5, height*.725]
+
+    const angle = getPositionAngle(index)
+    return [Math.cos(angle)*defenderDisance + width/2, -Math.sin(angle)*defenderDisance+startheight ]
 }
 
 function Miss()
@@ -136,6 +147,9 @@ export default function Game({ highscore, setHighscore, setScreen })
     const [ position, setPosition ] = useState(1)
     const [ actualPos, setActualPos ] = useState([0, 0])
 
+    const [ defenderPosIndex, setDefenderPosIndex ] = useState(0)
+    const [ defenderPos, setDefenderPos ] = useState([0, 0])
+
     const [ gameEnd, setGameEnd ] = useState(false)
     const [newHighScore, setNewHighScore] = useState(false)
 
@@ -155,8 +169,10 @@ export default function Game({ highscore, setHighscore, setScreen })
         let newIndex = (positionIndex+1)%6
         setPositionIndex(newIndex)
 
+        setDefenderPosIndex(position)
         if (newIndex == 0)
         {
+
             let newArray = shuffle(positionArray)
             setPositionArray(newArray)
             setPosition(newArray[newIndex])
@@ -189,6 +205,11 @@ export default function Game({ highscore, setHighscore, setScreen })
         setActualPos([newPos[0]-width*PLAYER_SIZE/2, newPos[1]-width*PLAYER_SIZE/2])
     }, [position])
 
+    useEffect(() => {
+        const newPos = getDefenderPosition(defenderPosIndex)
+        setDefenderPos([newPos[0]-width*PLAYER_SIZE/2, newPos[1]-width*PLAYER_SIZE/2])
+    }, [defenderPosIndex])
+
     return <View style={styles.container}>
         <Text style={styles.TopText}>{score.toString()}</Text>
         <Misses misses={misses}/>
@@ -204,7 +225,7 @@ export default function Game({ highscore, setHighscore, setScreen })
         <Player left={actualPos[0]} top={actualPos[1]} style={{backgroundColor: "red"}}/>
 
         {/* Goalie */}
-        <Player left={width*(.5-PLAYER_SIZE/2)} top={height*.74} style={{backgroundColor: "lightblue"}}/>
+        <Player left={defenderPos[0]} top={defenderPos[1]} style={{backgroundColor: "lightblue"}}/>
         
         {/* End Game Screen */}
         {gameEnd? <View style={styles.EndGameScreen}>
