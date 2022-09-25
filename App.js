@@ -15,6 +15,7 @@ const height = Dimensions.get("window").height
 import Home from './screens/Home';
 import Game from "./screens/Game"
 
+import Background from './components/Background';
 import HighscoreDisplay from './components/HighscoreDisplay';
 
 const highScoreKey = "@highscore:0.0"
@@ -58,6 +59,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
+      <Background/>
       <HighscoreDisplay highscore={highscore}/>
       {screen == "home" ? <Home setScreen={setScreen} highscore={highscore}/> : null}
       {screen == "game" ? <Game setScreen={setScreen} highscore={highscore} setHighscore={setHighscore}/> : null}
