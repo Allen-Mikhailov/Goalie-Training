@@ -10,6 +10,8 @@ const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBarManager.HEIGHT;
 const width = Dimensions.get("window").width
 const height = Dimensions.get("window").height - STATUSBAR_HEIGHT
 
+import { Audio } from 'expo-av';
+
 import Player from '../components/Player';
 import Goal from '../components/Goal';
 
