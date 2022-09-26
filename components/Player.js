@@ -18,14 +18,40 @@ const styles = StyleSheet.create({
         backgroundColor: "#aaa",
         borderWidth: 4
     },
+    trail: {
+      width: 34,
+      height: 4,
+      position: "relative",
+      left: PLAYER_SIZE/2*width - 1,
+      backgroundColor: "black"
+
+    },
+    leftTrail: {
+      top: -4
+    },
+    rightTrail: {
+      top: width * PLAYER_SIZE/2+6
+    }
 })
 
 export default function Player({left, top, style})
 {
+    const [lastLeft, setLastLeft] = useState(0)
+    const [lastTop, setLastTop] = useState(0)
+
+    const [currentLeft, setCurrentLeft] = useState(0)
+    const [currentTop, setCurrentTop] = useState(0)
+
     const animatedLeft = useRef(new Animated.Value(0)).current
     const animatedTop = useRef(new Animated.Value(0)).current
 
     useEffect(() => {
+      setLastLeft(currentLeft)
+      setLastTop(currentTop)
+
+      setCurrentLeft(left)
+      setCurrentTop(top)
+
         Animated.timing(
             animatedLeft,
             {
@@ -45,6 +71,14 @@ export default function Player({left, top, style})
           ).start();
     }, [left, top])
 
+    const animatedStyle = {
+      left: animatedLeft, 
+      top: animatedTop, 
+      transform: [{rotate: Math.atan2(lastTop-top, lastLeft-left)+"rad"}]}
 
-    return <Animated.View style={[styles.Player, {left: animatedLeft, top: animatedTop}, style]}/>
+
+    return <Animated.View style={[styles.Player, animatedStyle, style]}>
+      <Animated.View style={[styles.trail, styles.leftTrail]}/>
+      <Animated.View style={[styles.trail, styles.rightTrail]}/>
+    </Animated.View>
 }
