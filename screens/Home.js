@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
-import { Button, StyleSheet, Text, View, Image, Dimensions, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Image, Dimensions, Pressable, Animated } from 'react-native';
 
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Platform, NativeModules } from 'react-native';
 const { StatusBarManager } = NativeModules;
 
@@ -17,7 +18,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     title: {
-        fontSize: 50
+        fontSize: 50,
+        fontFamily: "Thonburi-Bold",
+        transform: [{rotate: "5deg"}]
     },
     playButtonContainer: {
         width: width * .175,
@@ -37,11 +40,31 @@ const styles = StyleSheet.create({
 });
 
 export default function Home({ setScreen }) {
+    const animation = useRef(new Animated.Value(35)).current
+
+    useEffect(() => {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(animation, {
+              toValue: 50,
+              duration: 2500,
+              useNativeDriver: false
+            }),
+            Animated.timing(animation, {
+              toValue: 35,
+              duration: 2500,
+              useNativeDriver: false
+            }),
+          ]),
+          {}
+        ).start()
+      }, [])
+
+
     return <View style={styles.container}>
-        <Text style={styles.title}>Goalie Training</Text>
+        <Animated.Text style={[styles.title, {fontSize: animation}]}>Goalie Training</Animated.Text>
         <Pressable style={styles.playButtonContainer} onPress={() => setScreen("game")}>
             <Image style={styles.playButton} source={require('../images/play.png')} />
         </Pressable>
-        {/* <Button title='Play' onPress={() => setScreen("game")}/> */}
     </View>
 }

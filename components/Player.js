@@ -43,7 +43,7 @@ export default function Player({left, top, style})
               useNativeDriver: false
             }
           ).start();
-    })
+    }, [left, top])
 
 
     return <Animated.View style={[styles.Player, {left: animatedLeft, top: animatedTop}, style]}/>
