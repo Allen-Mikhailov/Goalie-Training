@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 const width = Dimensions.get("window").width
 const height = Dimensions.get("window").height
 
-const MOVE_TIME = 5000
+const MOVE_TIME = 500
 const PLAYER_SIZE = .1
 
 const styles = StyleSheet.create({
@@ -64,8 +64,6 @@ export default function Player({left, top, style})
       setCurrentLeft(left)
       setCurrentTop(top)
 
-      // console.log(Animated.add(Animated.multiply(abs(Animated.add(new Animated.Value(.5), -.5)), -80), 40))
-
         Animated.timing(
           alpha,
             {
@@ -90,13 +88,17 @@ export default function Player({left, top, style})
       top: Animated.add(Animated.multiply(alpha, top-lastTop), lastTop), 
       transform: [{rotate: Math.atan2(lastTop-top, lastLeft-left)+"rad"}]}
 
+      const ialpha = alpha.interpolate({
+        inputRange: [0, .5, 1],
+        outputRange: [0, 1, 0]
+      });
+
       const trailStyle = {
-        // width: Animated.add(Animated.multiply(abs(Animated.add(alpha, -.5)), -40), 40)
-        width: Animated.multiply(abs(Animated.subtract(alpha, .5)), 50)
+        width: Animated.multiply(ialpha, 25)
       }
 
     return <Animated.View style={[styles.Player, animatedStyle, style]}>
-      {/* <Animated.View style={[styles.trail, styles.leftTrail, trailStyle]}/>
-      <Animated.View style={[styles.trail, styles.rightTrail, trailStyle]}/> */}
+      <Animated.View style={[styles.trail, styles.leftTrail, trailStyle]}/>
+      <Animated.View style={[styles.trail, styles.rightTrail, trailStyle]}/>
     </Animated.View>
 }
