@@ -157,9 +157,6 @@ export default function Game({ highscore, setHighscore, setScreen })
 
     const [ misses, setMisses ] = useState(0)
 
-    const [positionArray, setPositionArray] = useState([0, 1, 2, 3, 4, 5])
-    const [ positionIndex, setPositionIndex ] = useState(0)
-
     function OnCheck(index)
     {
         if (gameEnd) return;
@@ -168,24 +165,16 @@ export default function Game({ highscore, setHighscore, setScreen })
         else
             setMisses(misses + 1)
 
-        let newIndex = (positionIndex+1)%6
-        setPositionIndex(newIndex)
-
+        let newPos = position
         setDefenderPosIndex(position)
-        if (newIndex == 0)
-        {
-
-            let newArray = shuffle(positionArray)
-            setPositionArray(newArray)
-            setPosition(newArray[newIndex])
-        }
-        else
-            setPosition(positionArray[newIndex])
+        while (position == newPos)
+            newPos = Math.floor(Math.random()*6)
+        setPosition(newPos)
     }
 
     // Game Start
     useEffect(() => {
-        setPositionArray(shuffle(positionArray))
+        
     }, [])
 
     // Game End
