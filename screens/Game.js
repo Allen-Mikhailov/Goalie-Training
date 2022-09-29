@@ -12,6 +12,9 @@ const height = Dimensions.get("window").height - STATUSBAR_HEIGHT
 
 import { Audio } from 'expo-av';
 
+const MissSoundObj = require("../sounds/miss.wav")
+const CorrectSoundObj = require("../sounds/correct.wav")
+
 import Player from '../components/Player';
 import Goal from '../components/Goal';
 
@@ -78,25 +81,6 @@ const styles = StyleSheet.create({
 const Positions = 6
 const ButtonRange = [0, 1, 2, 3, 4, 5]
 
-// Totally Wrote this
-function shuffle(array) {
-    let currentIndex = array.length,  randomIndex;
-  
-    // While there remain elements to shuffle.
-    while (currentIndex != 0) {
-  
-      // Pick a remaining element.
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-  
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex], array[currentIndex]];
-    }
-  
-    return array;
-  }
-
 const playerDistance = width*.5
 const defenderDisance = width*.375
 const WideAngle = 120
@@ -156,6 +140,43 @@ export default function Game({ highscore, setHighscore, setScreen })
     const [newHighScore, setNewHighScore] = useState(false)
 
     const [ misses, setMisses ] = useState(0)
+
+    const [ missSound, setMissSound ] = useState()
+    const [ correctSound, setCorrectSound ] = useState()
+
+    async function playCorrectSound() {
+        const { sound } = await Audio.Sound.createAsync(CorrectSoundObj);
+        setCorrectSound(sound);
+    
+        console.log('Playing Sound');
+        await sound.playAsync();
+      }
+
+      async function playMissSound() {
+        const { sound } = await Audio.Sound.createAsync(MissSoundObj);
+        setMissSound(sound);
+    
+        console.log('Playing Sound');
+        await sound.playAsync();
+      }
+
+    useEffect(() => {
+        return missSound
+          ? () => {
+              console.log('Unloading Sound');
+              missSound.unloadAsync();
+            }
+          : undefined;
+      }, [missSound]);
+
+      useEffect(() => {
+        return correctSound
+          ? () => {
+              console.log('Unloading Sound');
+              correctSound.unloadAsync();
+            }
+          : undefined;
+      }, [correctSound]);
 
     function OnCheck(index)
     {
