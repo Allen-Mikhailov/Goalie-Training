@@ -147,6 +147,7 @@ export default function Game({ highscore, setHighscore, setScreen })
     async function playCorrectSound() {
         const { sound } = await Audio.Sound.createAsync(CorrectSoundObj);
         setCorrectSound(sound);
+        sound.setPositionAsync(50)
     
         console.log('Playing Sound');
         await sound.playAsync();
@@ -155,6 +156,7 @@ export default function Game({ highscore, setHighscore, setScreen })
       async function playMissSound() {
         const { sound } = await Audio.Sound.createAsync(MissSoundObj);
         setMissSound(sound);
+        sound.setPositionAsync(150)
     
         console.log('Playing Sound');
         await sound.playAsync();
@@ -182,9 +184,15 @@ export default function Game({ highscore, setHighscore, setScreen })
     {
         if (gameEnd) return;
         if (index == position)
+        {
+            playCorrectSound()
             setScore(score+1)
+        }
         else
+        {
+            playMissSound()
             setMisses(misses + 1)
+        }
 
         let newPos = position
         setDefenderPosIndex(position)

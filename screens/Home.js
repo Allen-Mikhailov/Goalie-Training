@@ -10,6 +10,8 @@ const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBarManager.HEIGHT;
 const width = Dimensions.get("window").width
 const height = Dimensions.get("window").height - STATUSBAR_HEIGHT
 
+const HomeIcon = require('../images/play.png')
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -64,7 +66,7 @@ export default function Home({ setScreen }) {
     return <View style={styles.container}>
         <Animated.Text style={[styles.title, {fontSize: animation}]}>Goalie Training</Animated.Text>
         <Pressable style={styles.playButtonContainer} onPress={() => setScreen("game")}>
-            <Image style={styles.playButton} source={require('../images/play.png')} />
+            <Image style={styles.playButton} source={HomeIcon} />
         </Pressable>
     </View>
 }
