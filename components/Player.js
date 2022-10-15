@@ -49,13 +49,16 @@ function abs(a) {
 
 export default function Player({left, top, style})
 {
-    const [lastLeft, setLastLeft] = useState(1)
-    const [lastTop, setLastTop] = useState(1)
-
-    const [currentLeft, setCurrentLeft] = useState(0)
-    const [currentTop, setCurrentTop] = useState(0)
 
     const alpha = useRef(new Animated.Value(0)).current
+    const aleft = useRef(new Animated.Value(0)).current
+    const atop = useRef(new Animated.Value(0)).current
+
+    const [lastLeft, setLastLeft ] = useState(0)
+    const [lastTop, setLastTop ] = useState(0)
+
+    const [currentLeft, setCurrentLeft ] = useState(0)
+    const [currentTop, setCurrentTop ] = useState(0)
 
     useEffect(() => {
       setLastLeft(currentLeft)
@@ -63,6 +66,24 @@ export default function Player({left, top, style})
 
       setCurrentLeft(left)
       setCurrentTop(top)
+
+      Animated.timing(
+        aleft,
+        {
+          toValue: left,
+          duration: MOVE_TIME,
+          useNativeDriver: false
+        }
+      ).start();
+
+      Animated.timing(
+        atop,
+        {
+          toValue: top,
+          duration: MOVE_TIME,
+          useNativeDriver: false
+        }
+      ).start();
 
         Animated.timing(
           alpha,
@@ -84,8 +105,8 @@ export default function Player({left, top, style})
     }, [left, top])
 
     const animatedStyle = {
-      left: Animated.add(Animated.multiply(alpha, left-lastLeft), lastLeft), 
-      top: Animated.add(Animated.multiply(alpha, top-lastTop), lastTop), 
+      left: aleft, 
+      top: atop, 
       transform: [{rotate: Math.atan2(lastTop-top, lastLeft-left)+"rad"}]}
 
       const ialpha = alpha.interpolate({
