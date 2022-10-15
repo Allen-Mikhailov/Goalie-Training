@@ -54,21 +54,21 @@ function Bubble()
     }
     setStats(newStats)
 
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(animation, {
-          toValue: 1,
-          duration: newStats.speed,
-          useNativeDriver: false
-        }),
-        Animated.timing(animation, {
-          toValue: -1,
-          duration: newStats.speed,
-          useNativeDriver: false
-        }),
-      ]),
-      {}
-    ).start()
+    // Animated.loop(
+    //   Animated.sequence([
+    //     Animated.timing(animation, {
+    //       toValue: 1,
+    //       duration: newStats.speed,
+    //       useNativeDriver: false
+    //     }),
+    //     Animated.timing(animation, {
+    //       toValue: -1,
+    //       duration: newStats.speed,
+    //       useNativeDriver: false
+    //     }),
+    //   ]),
+    //   {}
+    // ).start()
   }, [])
 
   const animatedStyle = {

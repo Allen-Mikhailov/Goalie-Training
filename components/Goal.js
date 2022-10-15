@@ -13,19 +13,18 @@ const height = Dimensions.get("window").height - STATUSBAR_HEIGHT
 const HEIGHT_LINES = 2
 const WIDTH_LINES = 3
 const LINE_THICKNESS = 4
-
-const HeightPercent = (height*.1)/(HEIGHT_LINES+1)
-const WidthPercent = (width*.5)/(WIDTH_LINES+1)
+const GOAL_WIDTH = .3
+const GOAL_HEIGHT = .08
 
 const styles = StyleSheet.create({
     Goal: {
-        width: width*.5,
+        width: width*GOAL_WIDTH,
         position: "absolute",
-        height: height*.1,
+        height: height*GOAL_HEIGHT,
         // backgroundColor: "red",
-        borderWidth: 4,
-        top: height*.8,
-        left: "25%"
+        // borderWidth: 4,
+        top: height*.82,
+        left: (1-GOAL_WIDTH)/2 * 100 +"%"
     },
     HorizontalLine: {
         backgroundColor: "black",
@@ -43,18 +42,11 @@ const styles = StyleSheet.create({
     }
 })
 
-function range(val)
-{
-    const arr = []
-    for (let i = 0; i<val; i++)
-        arr.push(i)
-    return arr
-}
-
 export default function Goal()
 {
     return <View style={styles.Goal}>
-        {range(HEIGHT_LINES).map((index) => <View key={index} style={[styles.HorizontalLine, {top: HeightPercent*(index+1)-8}]}/>)}
-        {range(WIDTH_LINES).map((index) => <View key={index} style={[styles.VerticalLine, {left: WidthPercent*(index+1)-8}]}/>)}
+        <View style={[styles.VerticalLine, {left: -LINE_THICKNESS/2}]}/>
+        <View style={[styles.VerticalLine, {left: width*GOAL_WIDTH-LINE_THICKNESS/2}]}/>
+        <View style={[styles.HorizontalLine, {top: height*GOAL_HEIGHT-LINE_THICKNESS}]}/>
     </View>
 }

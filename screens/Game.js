@@ -27,9 +27,9 @@ const styles = StyleSheet.create({
     ButtonContainer: {
         width: "100%",
         position: "absolute",
-        height: height*.1,
+        height: height * .1,
         // backgroundColor: "grey",
-        top: height*.9,
+        top: height * .9,
         flexDirection: "row"
     },
     PositionButtonContainer: {
@@ -55,8 +55,8 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     Miss: {
-        width: height*.1,
-        height: height*.1,
+        width: height * .1,
+        height: height * .1,
     },
     bar: {
         width: "10%",
@@ -81,138 +81,141 @@ const styles = StyleSheet.create({
 const Positions = 6
 const ButtonRange = [0, 1, 2, 3, 4, 5]
 
-const playerDistance = width*.5
-const defenderDisance = width*.375
+const STREAK_TIME = 3000
+
+const playerDistance = width * .5
+const defenderDisance = width * .375
 const WideAngle = 120
-function getPositionAngle(index)
-{
-    return (90 + WideAngle/2 - WideAngle/(Positions-2) * (4-index))/180*Math.PI
+function getPositionAngle(index) {
+    return (90 + WideAngle / 2 - WideAngle / (Positions - 2) * (4 - index)) / 180 * Math.PI
 }
 
-function getAttackerPosition(index)
-{
-    const startheight = height*.8
+function getAttackerPosition(index) {
+    const startheight = height * .8
     if (index == 5)
-        return [width*.5, height*.725]
+        return [width * .5, height * .725]
 
     const angle = getPositionAngle(index)
-    return [Math.cos(angle)*playerDistance + width/2, -Math.sin(angle)*playerDistance+startheight ]
+    return [Math.cos(angle) * playerDistance + width / 2, -Math.sin(angle) * playerDistance + startheight]
 }
 
-function getDefenderPosition(index)
-{
-    const startheight = height*.8
+function getDefenderPosition(index) {
+    const startheight = height * .8
     if (index == 5)
-        return [width*.5, height*.725]
+        return [width * .5, height * .725]
 
     const angle = getPositionAngle(index)
-    return [Math.cos(angle)*defenderDisance + width/2, -Math.sin(angle)*defenderDisance+startheight ]
+    return [Math.cos(angle) * defenderDisance + width / 2, -Math.sin(angle) * defenderDisance + startheight]
 }
 
-function Miss()
-{
+function Miss() {
     return <View style={styles.Miss}>
-        <View style={[styles.bar, {transform: [{rotate: "45deg"}]}]}/>
-        <View style={[styles.bar, {transform: [{rotate: "-45deg"}]}]}/>
+        <View style={[styles.bar, { transform: [{ rotate: "45deg" }] }]} />
+        <View style={[styles.bar, { transform: [{ rotate: "-45deg" }] }]} />
     </View>
 }
 
-function Misses({misses})
-{
+function Misses({ misses }) {
     return <View style={styles.Misses}>
-        {misses >= 1? <Miss/>:null}
-        {misses >= 2? <Miss/>:null}
-        {misses >= 3? <Miss/>:null}
+        {misses >= 1 ? <Miss /> : null}
+        {misses >= 2 ? <Miss /> : null}
+        {misses >= 3 ? <Miss /> : null}
     </View>
 }
 
-export default function Game({ highscore, setHighscore, setScreen })
-{
-    const [score, setScore ] = useState(0)
+export default function Game({ highscore, setHighscore, setScreen }) {
+    const [score, setScore] = useState(0)
 
-    const [ position, setPosition ] = useState(1)
-    const [ actualPos, setActualPos ] = useState([0, 0])
+    const [position, setPosition] = useState(1)
+    const [actualPos, setActualPos] = useState([0, 0])
 
-    const [ defenderPosIndex, setDefenderPosIndex ] = useState(0)
-    const [ defenderPos, setDefenderPos ] = useState([0, 0])
+    const [defenderPosIndex, setDefenderPosIndex] = useState(0)
+    const [defenderPos, setDefenderPos] = useState([0, 0])
 
-    const [ gameEnd, setGameEnd ] = useState(false)
+    const [gameEnd, setGameEnd] = useState(false)
     const [newHighScore, setNewHighScore] = useState(false)
 
-    const [ misses, setMisses ] = useState(0)
+    const [misses, setMisses] = useState(0)
 
-    const [ missSound, setMissSound ] = useState()
-    const [ correctSound, setCorrectSound ] = useState()
+    const [missSound, setMissSound] = useState()
+    const [correctSound, setCorrectSound] = useState()
+
+    const streakAnim = useRef(new Animated.Value(1)).current
+    const [streak, setStreak] = useState(0)
+    const [lastHit, setLastHit] = useState(0)
 
     async function playCorrectSound() {
         const { sound } = await Audio.Sound.createAsync(CorrectSoundObj);
         setCorrectSound(sound);
         sound.setPositionAsync(50)
-    
+
         console.log('Playing Sound');
         await sound.playAsync();
-      }
+    }
 
-      async function playMissSound() {
+    async function playMissSound() {
         const { sound } = await Audio.Sound.createAsync(MissSoundObj);
         setMissSound(sound);
         sound.setPositionAsync(150)
-    
+
         console.log('Playing Sound');
         await sound.playAsync();
-      }
+    }
 
     useEffect(() => {
         return missSound
-          ? () => {
-              console.log('Unloading Sound');
-              missSound.unloadAsync();
+            ? () => {
+                console.log('Unloading Sound');
+                missSound.unloadAsync();
             }
-          : undefined;
-      }, [missSound]);
+            : undefined;
+    }, [missSound]);
 
-      useEffect(() => {
+    useEffect(() => {
         return correctSound
-          ? () => {
-              console.log('Unloading Sound');
-              correctSound.unloadAsync();
+            ? () => {
+                console.log('Unloading Sound');
+                correctSound.unloadAsync();
             }
-          : undefined;
-      }, [correctSound]);
+            : undefined;
+    }, [correctSound]);
 
-    function OnCheck(index)
-    {
+    function OnCheck(index) {
         if (gameEnd) return;
-        if (index == position)
-        {
+        if (index == position) {
             playCorrectSound()
-            setScore(score+1)
+            setScore(score + 1)
+
+            if (Date.now() - lastHit < STREAK_TIME) {
+                setStreak(streak + 1)
+            } else {
+                setStreak(1)
+            }
+            setLastHit(Date.now())
         }
-        else
-        {
+        else {
             playMissSound()
             setMisses(misses + 1)
+            setStreak(0)
         }
 
         let newPos = position
         setDefenderPosIndex(position)
         while (position == newPos)
-            newPos = Math.floor(Math.random()*6)
+            newPos = Math.floor(Math.random() * 6)
         setPosition(newPos)
     }
 
     // Game Start
     useEffect(() => {
-        
+
     }, [])
 
     // Game End
     useEffect(() => {
-        if (misses == 3)
-        {
+        if (misses == 3) {
             // Game End
-            if (score > highscore)
-            {
+            if (score > highscore) {
                 setHighscore(score)
                 setNewHighScore(true)
             }
@@ -222,36 +225,60 @@ export default function Game({ highscore, setHighscore, setScreen })
 
     useEffect(() => {
         const newPos = getAttackerPosition(position)
-        setActualPos([newPos[0]-width*PLAYER_SIZE/2, newPos[1]-width*PLAYER_SIZE/2])
+        setActualPos([newPos[0] - width * PLAYER_SIZE / 2, newPos[1] - width * PLAYER_SIZE / 2])
     }, [position])
 
     useEffect(() => {
         const newPos = getDefenderPosition(defenderPosIndex)
-        setDefenderPos([newPos[0]-width*PLAYER_SIZE/2, newPos[1]-width*PLAYER_SIZE/2])
+        setDefenderPos([newPos[0] - width * PLAYER_SIZE / 2, newPos[1] - width * PLAYER_SIZE / 2])
     }, [defenderPosIndex])
+
+    // Streak Animation
+    useEffect(() => {
+        if (streak == 0) return;
+        console.log(streak)
+
+        Animated.sequence([
+            Animated.timing(streakAnim,
+                {
+                    toValue: 0,
+                    duration: 0,
+                    useNativeDriver: false
+                }),
+            Animated.timing(streakAnim,
+                {
+                    toValue: 1,
+                    duration: 750,
+                    useNativeDriver: false
+                }),
+        ]).start()
+    }, [streak])
 
     return <View style={styles.container}>
         <Text style={styles.TopText}>{score.toString()}</Text>
-        <Misses misses={misses}/>
+        <Animated.Text style={[styles.TopText, {
+            opacity: Animated.subtract(1, streakAnim)
+        }]}>{"+"+streak}</Animated.Text>
+        <Misses misses={misses} />
         {/* Buttons */}
         <View style={styles.ButtonContainer}>
             {ButtonRange.map((index) => <Pressable key={index} onPress={() => OnCheck(index)} style={styles.PositionButtonContainer}>
-                <Text style={styles.PositionButton}>{(index+1).toString()}</Text>
+                <Text style={styles.PositionButton}>{(index + 1).toString()}</Text>
             </Pressable>)}
         </View>
-        <Goal/>
+        <Goal />
 
         {/* Attacker */}
-        <Player left={actualPos[0]} top={actualPos[1]} style={{backgroundColor: "red"}}/>
+        <Player left={actualPos[0]} top={actualPos[1]} style={{ backgroundColor: "red" }} />
 
         {/* Goalie */}
-        <Player left={defenderPos[0]} top={defenderPos[1]} style={{backgroundColor: "lightblue"}}/>
-        
+        <Player left={defenderPos[0]} top={defenderPos[1]} style={{ backgroundColor: "lightblue" }} />
+
         {/* End Game Screen */}
-        {gameEnd? <View style={styles.EndGameScreen}>
-            {newHighScore? <Text>New Highscore!</Text>:null}
-            <Text>{"Final Score: "+score}</Text>
-            <Button title='Retry' onPress={() => setScreen("home")}/>
-        </View>:null}
+        {gameEnd ? <View style={styles.EndGameScreen}>
+            {newHighScore ? <Text>New Highscore!</Text> : null}
+            <Text>{"Final Score: " + score}</Text>
+            <Button title='Retry' onPress={() => setScreen("home")} />
+        </View> : null}
     </View>
 }

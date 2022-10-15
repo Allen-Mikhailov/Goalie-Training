@@ -57,15 +57,9 @@ export default function Player({left, top, style})
     const [lastLeft, setLastLeft ] = useState(0)
     const [lastTop, setLastTop ] = useState(0)
 
-    const [currentLeft, setCurrentLeft ] = useState(0)
-    const [currentTop, setCurrentTop ] = useState(0)
-
     useEffect(() => {
-      setLastLeft(currentLeft)
-      setLastTop(currentTop)
-
-      setCurrentLeft(left)
-      setCurrentTop(top)
+      setLastLeft(Number.parseInt(JSON.stringify(aleft)))
+      setLastTop(Number.parseInt(JSON.stringify(atop)))
 
       Animated.timing(
         aleft,
