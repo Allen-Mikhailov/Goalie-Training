@@ -17,6 +17,7 @@ const CorrectSoundObj = require("../sounds/correct.wav")
 
 import Player from '../components/Player';
 import Goal from '../components/Goal';
+import EndGameScreen from "../components/EndScreen.js"
 
 const PLAYER_SIZE = .125
 
@@ -66,16 +67,6 @@ const styles = StyleSheet.create({
         flex: 1,
         position: "absolute"
     },
-    EndGameScreen: {
-        width: "100%",
-        height: "100%",
-        top: -STATUSBAR_HEIGHT,
-        backgroundColor: "grey",
-        opacity: .5,
-        alignItems: "center",
-        justifyContent: "center",
-        position: "absolute"
-    }
 });
 
 const Positions = 6
@@ -275,10 +266,10 @@ export default function Game({ highscore, setHighscore, setScreen }) {
         <Player left={defenderPos[0]} top={defenderPos[1]} style={{ backgroundColor: "lightblue" }} />
 
         {/* End Game Screen */}
-        {gameEnd ? <View style={styles.EndGameScreen}>
-            {newHighScore ? <Text>New Highscore!</Text> : null}
-            <Text>{"Final Score: " + score}</Text>
-            <Button title='Retry' onPress={() => setScreen("home")} />
-        </View> : null}
+        {gameEnd? <EndGameScreen 
+            setScreen={setScreen} 
+            score={score} 
+            newHighScore={newHighScore}
+        />:null}
     </View>
 }
