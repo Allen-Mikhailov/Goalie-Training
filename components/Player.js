@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 const width = Dimensions.get("window").width
 const height = Dimensions.get("window").height
 
-const MOVE_TIME = 500
+const SPEED = 200
 const PLAYER_SIZE = .1
 
 const styles = StyleSheet.create({
@@ -58,8 +58,12 @@ export default function Player({left, top, style})
     const [lastTop, setLastTop ] = useState(0)
 
     useEffect(() => {
-      setLastLeft(Number.parseInt(JSON.stringify(aleft)))
-      setLastTop(Number.parseInt(JSON.stringify(atop)))
+      const lLeft = Number.parseInt(JSON.stringify(aleft))
+      const lTop = Number.parseInt(JSON.stringify(atop))
+      const MOVE_TIME = pytha(left, top, lLeft, lTop)/SPEED * 1000
+
+      setLastLeft(lLeft)
+      setLastTop(lTop)
 
       Animated.timing(
         aleft,

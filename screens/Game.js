@@ -16,6 +16,7 @@ const MissSoundObj = require("../sounds/miss.wav")
 const CorrectSoundObj = require("../sounds/correct.wav")
 
 import Player from '../components/Player';
+import Ball from "../components/Ball.js"
 import Goal from '../components/Goal';
 import EndGameScreen from "../components/EndScreen.js"
 
@@ -261,6 +262,7 @@ export default function Game({ highscore, setHighscore, setScreen }) {
 
         {/* Attacker */}
         <Player left={actualPos[0]} top={actualPos[1]} style={{ backgroundColor: "red" }} />
+        <Ball left={actualPos[0]+(position<3? -20:40)} top={actualPos[1]-10} style={{ backgroundColor: "grey" }} />
 
         {/* Goalie */}
         <Player left={defenderPos[0]} top={defenderPos[1]} style={{ backgroundColor: "lightblue" }} />

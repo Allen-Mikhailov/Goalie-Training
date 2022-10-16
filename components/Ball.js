@@ -5,8 +5,8 @@ import { useState, useEffect, useRef } from 'react';
 const width = Dimensions.get("window").width
 const height = Dimensions.get("window").height
 
-const SPEED = 500
-const PLAYER_SIZE = .025
+const SPEED = 200
+const PLAYER_SIZE = .05
 
 const styles = StyleSheet.create({
     Player: {
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
       top: -4
     },
     rightTrail: {
-      top: width * PLAYER_SIZE/2+6
+      top: width * PLAYER_SIZE/2-4
     }
 })
 
@@ -63,8 +63,7 @@ export default function Player({left, top, style})
       setLastLeft(lLeft)
       setLastTop(lTop)
 
-      const MOVE_TIME = pytha(left-lLeft, top-lTop)/SPEED
-      console.log("MOVE_TIME:", MOVE_TIME)
+      const MOVE_TIME = pytha(left, top, lLeft, lTop)/SPEED * 1000
 
       Animated.timing(
         aleft,
