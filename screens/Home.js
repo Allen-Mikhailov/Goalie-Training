@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
 
 export default function Home({ setScreen }) {
     const animation = useRef(new Animated.Value(35)).current
+    const buttonPulse = useRef(new Animated.Value(0)).current
 
     useEffect(() => {
         Animated.loop(
@@ -60,13 +61,41 @@ export default function Home({ setScreen }) {
           ]),
           {}
         ).start()
+
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(buttonPulse, {
+              toValue: 1,
+              duration: 2500,
+              useNativeDriver: false
+            }),
+            Animated.timing(buttonPulse, {
+              toValue: 0,
+              duration: 2500,
+              useNativeDriver: false
+            }),
+          ]),
+          {}
+        ).start()
       }, [])
 
+      const sizePulse = buttonPulse.interpolate({
+        inputRange: [0, 1],
+        outputRange: [width * .175, width * .25]
+      })
+
+      const paddingPulse = buttonPulse.interpolate({
+        inputRange: [0, 1],
+        outputRange: [width*(.5-.175/2), width*(.5-.25/2)]
+      })
 
     return <View style={styles.container}>
         <Animated.Text style={[styles.title, {fontSize: animation}]}>Goalie Training</Animated.Text>
-        <Pressable style={styles.playButtonContainer} onPress={() => setScreen("game")}>
-            <Image style={styles.playButton} source={HomeIcon} />
+        <Pressable style={{width: "100%", height: "100%", position: "absolute"}} onPress={() => setScreen("game")}>
+          <Animated.View style={[styles.playButtonContainer, {left: paddingPulse, top: "75%", 
+              width: sizePulse, height: sizePulse}]}>
+                <Image style={[styles.playButton]} source={HomeIcon} />
+          </Animated.View>
         </Pressable>
     </View>
 }

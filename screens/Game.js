@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Dimensions, Pressable, Animated, Button } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Pressable, Animated, Easing } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 
 import { Platform, NativeModules } from 'react-native';
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     },
     Miss: {
         width: height * .1,
-        height: height * .1,
+        height: height * .1
     },
     bar: {
         width: "10%",
@@ -101,9 +101,30 @@ function getDefenderPosition(index) {
 }
 
 function Miss() {
+    const slideRight = useRef(new Animated.Value(height * .1)).current
+    const slideLeft = useRef(new Animated.Value(height * .1)).current
+    const [ visible, setVisible ] = useState(false)
+
+    useEffect(() => {
+        setVisible(true)
+        Animated.timing(slideRight, {
+            toValue: 0,
+            duration: 200,
+            // easing: Easing.linear,
+            useNativeDriver: false
+        }).start()
+
+        Animated.timing(slideLeft, {
+            toValue: 0,
+            duration: 200,
+            delay: 100,
+            useNativeDriver: false
+        }).start()
+    }, [])
+
     return <View style={styles.Miss}>
-        <View style={[styles.bar, { transform: [{ rotate: "45deg" }] }]} />
-        <View style={[styles.bar, { transform: [{ rotate: "-45deg" }] }]} />
+        {visible && <Animated.View style={[styles.bar, { transform: [{ rotate: "45deg" }, {translateY: slideRight}] }]} />}
+        {visible && <Animated.View style={[styles.bar, { transform: [{ rotate: "-45deg" }, {translateY: slideLeft}] }]} />}
     </View>
 }
 
